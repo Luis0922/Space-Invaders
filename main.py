@@ -173,7 +173,7 @@ enemy_shot_shoot = []
 enemy_shot_stop = []
 enemy_shot_out_of_screen = []
 enemy_shot_Size = 10
-enemy_shot_speed = 0.15
+enemy_shot_speed = 0.15 + (0.025*(phase-1))
 img2 = pygame.image.load(os.path.join(images_directory, "alien_shot.png")).convert_alpha()
 for i in range(num_of_enemies):
     enemy_shot_Img.append(pygame.transform.scale(img2, (enemy_shot_Size, enemy_shot_Size)))
@@ -201,7 +201,7 @@ for i in range(num_of_life):
 ship = Ship()
 shot = Shot(0, 0)
 running = True
-
+pause = False
 while running:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -209,44 +209,47 @@ while running:
     commands = pygame.key.get_pressed()
     if commands[pygame.K_ESCAPE]:
         running = False
-    # Makes the ship move and never goes out the scream
-    if commands[pygame.K_UP] and ship.y > 0:
-        ship.y -= ship.speed
-    if commands[pygame.K_DOWN] and ship.y < screen_y-ship.height:
-        ship.y += ship.speed
-    if commands[pygame.K_LEFT] and ship.x > 0:
-        ship.x -= ship.speed
-    if commands[pygame.K_RIGHT] and ship.x < screen_x-ship.length:
-        ship.x += ship.speed
-    if commands[pygame.K_SPACE]:
-        if shot.out_of_screen or shot.hit:
-            shot.x = ship.x + ship.length/4
-            shot.y = ship.y - ship.height/2 - shot.height/2
-            shot.invisible = False
-            shot.out_of_screen = False
-            shot.hit = False
-    screen.fill((0, 0, 0))
-    shot.draw_shot()
-    shot.move_shot()
-    ship.draw_ship()
-    num_of_life = ship_lose_life(num_of_life)
-    move_enemy(enemyX, enemyY, enemyX_change)
-    enemy_shoot()
-    score = enemy_dead(score)
-    move_enemy_shot()
-    text_score = score_source.render(f"Score: {score}", 1, (255, 255, 0))
-    screen.blit(text_score, (0, 22))
-    text_phase = phase_source.render(f"Fase {phase}", 1, (255, 255, 255))
-    screen.blit(text_phase, ((screen_x/2)-25, 5))
-    if num_of_life > 0:
-        screen.blit(ship.img, (ship.x, ship.y))
-    for i in range(num_of_life):
-        screen.blit(life_Img[i], (life_x[i], life_y[i]))
-    for i in range(num_of_enemies):
-        if not enemy_destroyed[i]:
-            screen.blit(enemyImg[i], (enemyX[i], enemyY[i]))
-        if not enemy_shot_invisible[i]:
-            screen.blit(enemy_shot_Img[i], (enemyX[i], enemy_shot_y[i]))
-    if not shot.invisible:
-        screen.blit(shot.img, (shot.x, shot.y))
+    if commands[pygame.K_p]:
+        pause = not pause
+    if pause == False:
+        # Makes the ship move and never goes out the scream
+        if commands[pygame.K_UP] and ship.y > 0:
+            ship.y -= ship.speed
+        if commands[pygame.K_DOWN] and ship.y < screen_y-ship.height:
+            ship.y += ship.speed
+        if commands[pygame.K_LEFT] and ship.x > 0:
+            ship.x -= ship.speed
+        if commands[pygame.K_RIGHT] and ship.x < screen_x-ship.length:
+            ship.x += ship.speed
+        if commands[pygame.K_SPACE]:
+            if shot.out_of_screen or shot.hit:
+                shot.x = ship.x + ship.length/4
+                shot.y = ship.y - ship.height/2 - shot.height/2
+                shot.invisible = False
+                shot.out_of_screen = False
+                shot.hit = False
+        screen.fill((0, 0, 0))
+        shot.draw_shot()
+        shot.move_shot()
+        ship.draw_ship()
+        num_of_life = ship_lose_life(num_of_life)
+        move_enemy(enemyX, enemyY, enemyX_change)
+        enemy_shoot()
+        score = enemy_dead(score)
+        move_enemy_shot()
+        text_score = score_source.render(f"Score: {score}", 1, (255, 255, 0))
+        screen.blit(text_score, (0, 22))
+        text_phase = phase_source.render(f"Fase {phase}", 1, (255, 255, 255))
+        screen.blit(text_phase, ((screen_x/2)-25, 5))
+        if num_of_life > 0:
+            screen.blit(ship.img, (ship.x, ship.y))
+        for i in range(num_of_life):
+            screen.blit(life_Img[i], (life_x[i], life_y[i]))
+        for i in range(num_of_enemies):
+            if not enemy_destroyed[i]:
+                screen.blit(enemyImg[i], (enemyX[i], enemyY[i]))
+            if not enemy_shot_invisible[i]:
+                screen.blit(enemy_shot_Img[i], (enemyX[i], enemy_shot_y[i]))
+        if not shot.invisible:
+            screen.blit(shot.img, (shot.x, shot.y))
     pygame.display.update()
